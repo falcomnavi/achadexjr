@@ -19,7 +19,7 @@ const ProductCard = ({ product }) => {
       {product.image && (
         <div className="card-image-container">
           <img 
-            src={`http://localhost:5000${product.image}`} 
+            src={product.image} 
             alt={product.name}
             className="card-img"
             onError={(e) => {
@@ -42,26 +42,41 @@ const ProductCard = ({ product }) => {
       
       <div className="card-body">
         <h3 className="card-title">{product.name}</h3>
-        <p className="card-text">{product.description}</p>
         
-        <div className="price-container">
-          <span className="original-price">
-            {formatPrice(product.originalPrice)}
-          </span>
-          <span className="sale-price">
-            {formatPrice(product.salePrice)}
-          </span>
-          <span className="discount-badge">
-            <i className="fas fa-percentage"></i>
-            -{calculateDiscount()}%
-          </span>
+        {product.description && (
+          <p className="card-description">
+            {product.description.length > 100 
+              ? `${product.description.substring(0, 100)}...` 
+              : product.description
+            }
+          </p>
+        )}
+        
+        <div className="card-pricing">
+          {product.originalPrice && product.salePrice && (
+            <div className="original-price">
+              De: {formatPrice(product.originalPrice)}
+            </div>
+          )}
+          <div className="sale-price">
+            Por: {formatPrice(product.salePrice)}
+          </div>
+          {calculateDiscount() > 0 && (
+            <div className="discount-badge">
+              -{calculateDiscount()}%
+            </div>
+          )}
         </div>
         
+        {product.category && (
+          <div className="card-category">
+            <i className="fas fa-tag"></i>
+            {product.category}
+          </div>
+        )}
+        
         <div className="card-actions">
-          <Link 
-            to={`/product/${product._id}`}
-            className="btn btn-primary view-details-btn"
-          >
+          <Link to={`/product/${product.id || product._id}`} className="btn btn-primary">
             <i className="fas fa-eye"></i>
             Ver Detalhes
           </Link>
@@ -70,19 +85,12 @@ const ProductCard = ({ product }) => {
             href={product.affiliateLink} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="btn btn-success buy-now-btn"
+            className="btn btn-success"
           >
-            <i className="fas fa-shopping-cart"></i>
-            Comprar Agora
+            <i className="fas fa-external-link-alt"></i>
+            Comprar
           </a>
         </div>
-        
-        {product.category && (
-          <div className="product-category">
-            <i className="fas fa-tag"></i>
-            <span>{product.category}</span>
-          </div>
-        )}
       </div>
     </div>
   );

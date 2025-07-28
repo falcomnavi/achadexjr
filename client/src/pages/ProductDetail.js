@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -11,14 +12,10 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${id}`);
-        if (!response.ok) {
-          throw new Error('Produto não encontrado');
-        }
-        const data = await response.json();
-        setProduct(data);
+        const response = await axios.get(`/api/products/${id}`);
+        setProduct(response.data);
       } catch (err) {
-        setError(err.message);
+        setError('Produto não encontrado');
       } finally {
         setLoading(false);
       }
@@ -68,31 +65,41 @@ const ProductDetail = () => {
     );
   }
 
-  const allImages = [product.image, ...(product.additionalImages || [])].filter(Boolean);
-  const discount = ((product.originalPrice - product.salePrice) / product.originalPrice * 100).toFixed(0);
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price);
+  };
+
+  const calculateDiscount = () => {
+    if (!product.originalPrice || !product.salePrice) return 0;
+    return Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100);
+  };
+
+  const allImages = [
+    ...(product.image ? [product.image] : []),
+    ...(product.additionalImages || [])
+  ];
 
   return (
     <div className="main-content">
       <div className="product-detail-container">
-        {/* Breadcrumb */}
-        <nav className="breadcrumb">
-          <Link to="/" className="breadcrumb-item">
-            <i className="fas fa-home"></i>
-            Início
+        <div className="product-header">
+          <Link to="/" className="back-link">
+            <i className="fas fa-arrow-left"></i>
+            Voltar aos Produtos
           </Link>
-          <span className="breadcrumb-separator">
-            <i className="fas fa-chevron-right"></i>
-          </span>
-          <span className="breadcrumb-item active">{product.name}</span>
-        </nav>
+          <h1 className="product-title">{product.name}</h1>
+        </div>
 
-        <div className="product-detail-grid">
+        <div className="product-content">
           {/* Galeria de Imagens */}
           <div className="product-gallery">
             <div className="main-image-container">
               {allImages.length > 0 ? (
                 <img
-                  src={`http://localhost:5000${allImages[currentImageIndex]}`}
+                  src={allImages[currentImageIndex]}
                   alt={product.name}
                   className="main-product-image"
                 />
@@ -113,7 +120,7 @@ const ProductDetail = () => {
                     className={`thumbnail-btn ${currentImageIndex === index ? 'active' : ''}`}
                   >
                     <img
-                      src={`http://localhost:5000${image}`}
+                      src={image}
                       alt={`${product.name} ${index + 1}`}
                       className="thumbnail-image"
                     />
@@ -125,135 +132,60 @@ const ProductDetail = () => {
 
           {/* Informações do Produto */}
           <div className="product-info">
-            <div className="product-header">
-              <h1 className="product-title">{product.name}</h1>
-              {product.category && (
-                <span className="product-category">
-                  <i className="fas fa-tag"></i>
-                  {product.category}
-                </span>
-              )}
-            </div>
-
             <div className="product-description">
-              <h3>
-                <i className="fas fa-info-circle"></i>
-                Descrição
-              </h3>
+              <h3>Descrição</h3>
               <p>{product.description}</p>
             </div>
 
-            {/* Preços */}
             <div className="product-pricing">
-              <div className="price-display">
-                <div className="original-price">
-                  <span className="price-label">De:</span>
-                  <span className="price-value">R$ {parseFloat(product.originalPrice).toFixed(2)}</span>
-                </div>
+              <h3>Preços</h3>
+              <div className="price-container">
+                {product.originalPrice && product.salePrice && (
+                  <div className="original-price">
+                    De: {formatPrice(product.originalPrice)}
+                  </div>
+                )}
                 <div className="sale-price">
-                  <span className="price-label">Por:</span>
-                  <span className="price-value">R$ {parseFloat(product.salePrice).toFixed(2)}</span>
+                  Por: {formatPrice(product.salePrice)}
                 </div>
-                <div className="discount-badge">
-                  <i className="fas fa-percentage"></i>
-                  {discount}% OFF
-                </div>
+                {calculateDiscount() > 0 && (
+                  <div className="discount-badge">
+                    -{calculateDiscount()}%
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Vídeo */}
             {product.video && (
               <div className="product-video">
-                <h3>
-                  <i className="fas fa-video"></i>
-                  Vídeo do Produto
-                </h3>
-                <video
-                  src={`http://localhost:5000${product.video}`}
-                  controls
-                  className="product-video-player"
-                />
+                <h3>Vídeo do Produto</h3>
+                <video controls className="product-video-player">
+                  <source src={product.video} type="video/mp4" />
+                  Seu navegador não suporta vídeos.
+                </video>
               </div>
             )}
 
-            {/* Botão de Compra */}
             <div className="product-actions">
-              <a
-                href={product.affiliateLink}
-                target="_blank"
+              <a 
+                href={product.affiliateLink} 
+                target="_blank" 
                 rel="noopener noreferrer"
-                className="btn btn-primary buy-btn"
+                className="btn btn-primary btn-large"
               >
-                <i className="fas fa-shopping-cart"></i>
-                Comprar Agora
+                <i className="fas fa-external-link-alt"></i>
+                Ver Produto
               </a>
-              
-              <button className="btn btn-warning share-btn">
-                <i className="fas fa-share-alt"></i>
-                Compartilhar
-              </button>
             </div>
 
-            {/* Redes Sociais */}
-            <div className="social-share">
-              <h4>
-                <i className="fas fa-share"></i>
-                Compartilhar nas Redes Sociais
-              </h4>
-              <div className="social-buttons">
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-share-btn facebook"
-                >
-                  <i className="fab fa-facebook"></i>
-                  Facebook
-                </a>
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(product.name)}&url=${encodeURIComponent(window.location.href)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-share-btn twitter"
-                >
-                  <i className="fab fa-twitter"></i>
-                  Twitter
-                </a>
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`${product.name} - ${window.location.href}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-share-btn whatsapp"
-                >
-                  <i className="fab fa-whatsapp"></i>
-                  WhatsApp
-                </a>
-                <a
-                  href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(product.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="social-share-btn telegram"
-                >
-                  <i className="fab fa-telegram"></i>
-                  Telegram
-                </a>
+            <div className="product-meta">
+              <div className="meta-item">
+                <i className="fas fa-tag"></i>
+                <span>Categoria: {product.category}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Produtos Relacionados */}
-        <div className="related-products">
-          <h3>
-            <i className="fas fa-th-large"></i>
-            Produtos Relacionados
-          </h3>
-          <div className="related-products-grid">
-            {/* Aqui você pode adicionar produtos relacionados */}
-            <div className="related-product-card">
-              <div className="related-product-placeholder">
-                <i className="fas fa-plus"></i>
-                <span>Mais produtos em breve</span>
+              <div className="meta-item">
+                <i className="fas fa-calendar"></i>
+                <span>Adicionado em: {new Date(product.createdAt).toLocaleDateString('pt-BR')}</span>
               </div>
             </div>
           </div>

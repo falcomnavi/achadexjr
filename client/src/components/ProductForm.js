@@ -31,13 +31,13 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
         additionalImages: []
       });
       if (product.image) {
-        setPreviewImage(`http://localhost:5000${product.image}`);
+        setPreviewImage(product.image);
       }
       if (product.video) {
-        setPreviewVideo(`http://localhost:5000${product.video}`);
+        setPreviewVideo(product.video);
       }
       if (product.additionalImages) {
-        setPreviewAdditionalImages(product.additionalImages.map(img => `http://localhost:5000${img}`));
+        setPreviewAdditionalImages(product.additionalImages);
       }
     }
   }, [product]);
@@ -76,175 +76,144 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="form-container">
-      <h2 className="form-title">
-        <i className="fas fa-cube"></i>
-        {product ? 'Editar Produto' : 'Adicionar Novo Produto'}
-      </h2>
+    <div className="product-form-container">
+      <h2>{product ? 'Editar Produto' : 'Adicionar Novo Produto'}</h2>
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="product-form">
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-tag"></i> Nome do Produto *
-          </label>
+          <label htmlFor="name">Nome do Produto *</label>
           <input
             type="text"
+            id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="form-input"
-            placeholder="Digite o nome do produto"
             required
+            className="form-control"
           />
         </div>
 
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-align-left"></i> Descrição *
-          </label>
+          <label htmlFor="description">Descrição</label>
           <textarea
+            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="form-input form-textarea"
-            placeholder="Descreva o produto detalhadamente..."
-            required
+            rows="4"
+            className="form-control"
           />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="form-row">
           <div className="form-group">
-            <label className="form-label">
-              <i className="fas fa-dollar-sign"></i> Preço Original *
-            </label>
+            <label htmlFor="originalPrice">Preço Original</label>
             <input
               type="number"
+              id="originalPrice"
               name="originalPrice"
               value={formData.originalPrice}
               onChange={handleChange}
-              className="form-input"
               step="0.01"
               min="0"
-              placeholder="0.00"
-              required
+              className="form-control"
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">
-              <i className="fas fa-percentage"></i> Preço de Venda *
-            </label>
+            <label htmlFor="salePrice">Preço de Venda *</label>
             <input
               type="number"
+              id="salePrice"
               name="salePrice"
               value={formData.salePrice}
               onChange={handleChange}
-              className="form-input"
               step="0.01"
               min="0"
-              placeholder="0.00"
               required
+              className="form-control"
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-link"></i> Link de Afiliado *
-          </label>
+          <label htmlFor="affiliateLink">Link de Afiliado *</label>
           <input
             type="url"
+            id="affiliateLink"
             name="affiliateLink"
             value={formData.affiliateLink}
             onChange={handleChange}
-            className="form-input"
-            placeholder="https://exemplo.com/produto"
             required
+            className="form-control"
+            placeholder="https://..."
           />
         </div>
 
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-folder"></i> Categoria
-          </label>
+          <label htmlFor="category">Categoria</label>
           <input
             type="text"
+            id="category"
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="form-input"
-            placeholder="Ex: Eletrônicos, Moda, Casa..."
+            className="form-control"
           />
         </div>
 
-        {/* Imagem Principal */}
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-image"></i> Imagem Principal
-          </label>
+          <label htmlFor="image">Imagem Principal</label>
           <input
             type="file"
+            id="image"
             name="image"
             onChange={handleChange}
-            className="form-input"
             accept="image/*"
+            className="form-control"
           />
           {previewImage && (
-            <div className="preview-container">
-              <img 
-                src={previewImage} 
-                alt="Preview" 
-                className="preview-image"
-              />
+            <div className="image-preview">
+              <img src={previewImage} alt="Preview" />
             </div>
           )}
         </div>
 
-        {/* Vídeo */}
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-video"></i> Vídeo do Produto
-          </label>
+          <label htmlFor="video">Vídeo do Produto</label>
           <input
             type="file"
+            id="video"
             name="video"
             onChange={handleChange}
-            className="form-input"
             accept="video/*"
+            className="form-control"
           />
           {previewVideo && (
-            <div className="preview-container">
-              <video 
-                src={previewVideo} 
-                controls
-                className="preview-video"
-              />
+            <div className="video-preview">
+              <video controls>
+                <source src={previewVideo} />
+              </video>
             </div>
           )}
         </div>
 
-        {/* Imagens Adicionais */}
         <div className="form-group">
-          <label className="form-label">
-            <i className="fas fa-images"></i> Imagens Adicionais
-          </label>
+          <label htmlFor="additionalImages">Imagens Adicionais</label>
           <input
             type="file"
+            id="additionalImages"
             name="additionalImages"
             onChange={handleChange}
-            className="form-input"
             accept="image/*"
             multiple
+            className="form-control"
           />
           {previewAdditionalImages.length > 0 && (
-            <div className="additional-images-grid">
+            <div className="additional-images-preview">
               {previewAdditionalImages.map((preview, index) => (
-                <div key={index} className="additional-image-container">
-                  <img 
-                    src={preview} 
-                    alt={`Preview ${index + 1}`} 
-                    className="preview-image"
-                  />
+                <div key={index} className="additional-image-preview">
+                  <img src={preview} alt={`Preview ${index + 1}`} />
                   <button
                     type="button"
                     onClick={() => removeAdditionalImage(index)}
@@ -258,16 +227,12 @@ const ProductForm = ({ product, onSubmit, onCancel }) => {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-          <button type="submit" className="btn btn-success">
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary">
             <i className="fas fa-save"></i>
             {product ? 'Atualizar Produto' : 'Adicionar Produto'}
           </button>
-          <button 
-            type="button" 
-            onClick={onCancel}
-            className="btn btn-warning"
-          >
+          <button type="button" onClick={onCancel} className="btn btn-secondary">
             <i className="fas fa-times"></i>
             Cancelar
           </button>

@@ -12,8 +12,12 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProductForm from './components/ProductForm';
 import ProductDetail from './pages/ProductDetail';
 
-// Configuração do axios
-axios.defaults.baseURL = 'http://localhost:5000';
+// Configuração do axios - funciona tanto em desenvolvimento quanto em produção
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? window.location.origin 
+  : 'http://localhost:5000';
+
+axios.defaults.baseURL = API_BASE_URL;
 
 // TESTE: Achadex Jr - Site Tecnológico Atualizado
 
