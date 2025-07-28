@@ -194,18 +194,18 @@ app.get('/api/stats', (req, res) => {
   res.json(stats);
 });
 
-// Rota para servir o frontend
+// Servir arquivos estáticos do build do React
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+// Rota para servir o frontend (deve vir depois das rotas da API)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
-// Para Vercel, exportar a função
-module.exports = app;
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Acesse: http://localhost:${PORT}`);
+});
 
-// Para desenvolvimento local
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-    console.log(`Acesse: http://localhost:${PORT}`);
-  });
-} 
+module.exports = app; 

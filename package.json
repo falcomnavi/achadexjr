@@ -7,11 +7,11 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node api/index.js",
     "client": "cd client && npm start",
-    "build": "cd client && npm run build",
+    "build": "cd client && npm install && npm run build",
     "vercel-build": "cd client && npm run build",
     "install-all": "npm install && cd client && npm install",
-    "start": "node api/index.js",
-    "postinstall": "cd client && npm run build"
+    "start": "npm run build && node api/index.js",
+    "build-client": "cd client && npm install && npm run build"
   },
   "keywords": ["achadexjr", "tecnologia", "afiliados"],
   "author": "Achadex Jr",
