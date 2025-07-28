@@ -10,8 +10,9 @@
     "build": "cd client && npm install && npm run build",
     "vercel-build": "cd client && npm run build",
     "install-all": "npm install && cd client && npm install",
-    "start": "npm run build && node api/index.js",
-    "build-client": "cd client && npm install && npm run build"
+    "start": "node api/index.js",
+    "build-client": "cd client && npm install && npm run build",
+    "postinstall": "cd client && npm install && npm run build"
   },
   "keywords": ["achadexjr", "tecnologia", "afiliados"],
   "author": "Achadex Jr",
