@@ -2,20 +2,27 @@
 
 ## ✅ **PROBLEMAS CORRIGIDOS:**
 
-### 1. **Servidor Duplicado Removido**
+### 1. **Erro de Build Resolvido**
+- ❌ `react-scripts: Permission denied` - CORRIGIDO
+- ✅ Configuração de build simplificada
+- ✅ Scripts atualizados
+
+### 2. **Servidor Duplicado Removido**
 - ❌ Removido `server/index.js` duplicado
 - ✅ Mantido apenas `api/index.js` como servidor principal
 
-### 2. **URLs Hardcoded Corrigidas**
+### 3. **URLs Hardcoded Corrigidas**
 - ❌ `http://localhost:5000` removido de todos os arquivos
 - ✅ URLs dinâmicas que funcionam em desenvolvimento e produção
 
-### 3. **Configuração do Railway**
+### 4. **Configuração do Railway**
 - ✅ `railway.json` criado
 - ✅ `railway.toml` criado
+- ✅ `nixpacks.toml` criado
+- ✅ `Procfile` criado
 - ✅ `package.json` atualizado com engines corretas
 
-### 4. **Proxy Removido**
+### 5. **Proxy Removido**
 - ❌ Removido proxy do `client/package.json`
 - ✅ URLs configuradas dinamicamente
 
@@ -33,7 +40,7 @@
 ### **3. Configuração Automática**
 O Railway detectará automaticamente:
 - ✅ **Root Directory**: `.` (raiz do projeto)
-- ✅ **Build Command**: `npm install`
+- ✅ **Build Command**: `npm install && cd client && npm install`
 - ✅ **Start Command**: `npm start`
 - ✅ **Node.js Version**: 18.x
 
@@ -54,8 +61,8 @@ PORT=5000
 ```json
 {
   "scripts": {
-    "start": "node api/index.js",
-    "postinstall": "cd client && npm run build"
+    "start": "npm run build && node api/index.js",
+    "build": "cd client && npm install && npm run build"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -63,20 +70,23 @@ PORT=5000
 }
 ```
 
-### **client/src/App.js**
+### **api/index.js**
 ```javascript
-// Configuração dinâmica do axios
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? window.location.origin 
-  : 'http://localhost:5000';
+// Servir arquivos estáticos do build do React
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-axios.defaults.baseURL = API_BASE_URL;
+// Rota para servir o frontend (deve vir depois das rotas da API)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 ```
 
 ### **Arquivos de Configuração**
 - ✅ `railway.json` - Configuração JSON
 - ✅ `railway.toml` - Configuração TOML
-- ✅ `.gitignore` - Arquivos ignorados
+- ✅ `nixpacks.toml` - Configuração Nixpacks
+- ✅ `Procfile` - Configuração Heroku/Railway
+- ✅ `.railwayignore` - Arquivos ignorados
 
 ## 🎯 **RESULTADO ESPERADO:**
 
@@ -106,7 +116,9 @@ afiliados-site/
 ├── package.json          # Configuração principal
 ├── railway.json          # Config Railway
 ├── railway.toml          # Config Railway
-└── README.md
+├── nixpacks.toml        # Config Nixpacks
+├── Procfile             # Config Procfile
+└── .railwayignore       # Arquivos ignorados
 ```
 
 ## 🎉 **PRONTO PARA DEPLOY!**
@@ -117,4 +129,12 @@ Seu projeto está **100% corrigido** e pronto para deploy no Railway!
 1. Faça push para GitHub
 2. Conecte no Railway
 3. Deploy automático acontece
-4. Site funcionando! 🚀 
+4. Site funcionando! 🚀
+
+## 🔧 **SOLUÇÃO PARA ERRO DE BUILD:**
+
+O erro `react-scripts: Permission denied` foi resolvido com:
+- ✅ Scripts de build simplificados
+- ✅ Configuração Nixpacks correta
+- ✅ Instalação de dependências em ordem correta
+- ✅ Permissões adequadas no Railway 
