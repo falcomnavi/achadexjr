@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Configuração do Multer para upload de imagens
+// Configuração do Multer para upload de imagens e vídeos
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = 'public/uploads';
@@ -29,10 +29,10 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
       cb(null, true);
     } else {
-      cb(new Error('Apenas imagens são permitidas!'), false);
+      cb(new Error('Apenas imagens e vídeos são permitidos!'), false);
     }
   }
 });
@@ -62,12 +62,29 @@ app.get('/api/products', (req, res) => {
   res.json(products);
 });
 
+// Obter produto específico
+app.get('/api/products/:id', (req, res) => {
+  const { id } = req.params;
+  const product = products.find(p => p.id === id || p._id === id);
+  
+  if (!product) {
+    return res.status(404).json({ success: false, message: 'Produto não encontrado!' });
+  }
+  
+  res.json(product);
+});
+
 // Adicionar novo produto
-app.post('/api/products', upload.single('image'), (req, res) => {
+app.post('/api/products', upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'video', maxCount: 1 },
+  { name: 'additionalImages', maxCount: 10 }
+]), (req, res) => {
   try {
     const { name, description, originalPrice, salePrice, affiliateLink, category } = req.body;
     
     const newProduct = {
+      _id: Date.now().toString(),
       id: Date.now().toString(),
       name,
       description,
@@ -75,7 +92,9 @@ app.post('/api/products', upload.single('image'), (req, res) => {
       salePrice: parseFloat(salePrice),
       affiliateLink,
       category,
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image: req.files.image ? `/uploads/${req.files.image[0].filename}` : null,
+      video: req.files.video ? `/uploads/${req.files.video[0].filename}` : null,
+      additionalImages: req.files.additionalImages ? req.files.additionalImages.map(file => `/uploads/${file.filename}`) : [],
       createdAt: new Date().toISOString(),
       active: true
     };
@@ -88,10 +107,14 @@ app.post('/api/products', upload.single('image'), (req, res) => {
 });
 
 // Atualizar produto
-app.put('/api/products/:id', upload.single('image'), (req, res) => {
+app.put('/api/products/:id', upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'video', maxCount: 1 },
+  { name: 'additionalImages', maxCount: 10 }
+]), (req, res) => {
   try {
     const { id } = req.params;
-    const productIndex = products.findIndex(p => p.id === id);
+    const productIndex = products.findIndex(p => p.id === id || p._id === id);
     
     if (productIndex === -1) {
       return res.status(404).json({ success: false, message: 'Produto não encontrado!' });
@@ -100,13 +123,22 @@ app.put('/api/products/:id', upload.single('image'), (req, res) => {
     const updatedProduct = {
       ...products[productIndex],
       ...req.body,
-      id,
+      id: products[productIndex].id,
+      _id: products[productIndex]._id,
       originalPrice: parseFloat(req.body.originalPrice),
       salePrice: parseFloat(req.body.salePrice)
     };
     
-    if (req.file) {
-      updatedProduct.image = `/uploads/${req.file.filename}`;
+    if (req.files.image) {
+      updatedProduct.image = `/uploads/${req.files.image[0].filename}`;
+    }
+    
+    if (req.files.video) {
+      updatedProduct.video = `/uploads/${req.files.video[0].filename}`;
+    }
+    
+    if (req.files.additionalImages) {
+      updatedProduct.additionalImages = req.files.additionalImages.map(file => `/uploads/${file.filename}`);
     }
     
     products[productIndex] = updatedProduct;
@@ -120,7 +152,7 @@ app.put('/api/products/:id', upload.single('image'), (req, res) => {
 app.delete('/api/products/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const productIndex = products.findIndex(p => p.id === id);
+    const productIndex = products.findIndex(p => p.id === id || p._id === id);
     
     if (productIndex === -1) {
       return res.status(404).json({ success: false, message: 'Produto não encontrado!' });
@@ -137,7 +169,7 @@ app.delete('/api/products/:id', (req, res) => {
 app.patch('/api/products/:id/toggle', (req, res) => {
   try {
     const { id } = req.params;
-    const product = products.find(p => p.id === id);
+    const product = products.find(p => p.id === id || p._id === id);
     
     if (!product) {
       return res.status(404).json({ success: false, message: 'Produto não encontrado!' });
@@ -155,7 +187,7 @@ app.get('/api/stats', (req, res) => {
   const stats = {
     totalProducts: products.length,
     activeProducts: products.filter(p => p.active).length,
-    inactiveProducts: products.filter(p => p.inactive).length,
+    inactiveProducts: products.filter(p => !p.active).length,
     categories: [...new Set(products.map(p => p.category))].length
   };
   

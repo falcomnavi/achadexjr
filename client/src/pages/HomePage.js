@@ -17,29 +17,49 @@ const HomePage = ({ products, loading }) => {
   if (loading) {
     return (
       <div className="loading">
-        <h2>Carregando produtos...</h2>
+        <i className="fas fa-spinner fa-spin"></i>
+        <span style={{ marginLeft: '1rem' }}>Carregando produtos...</span>
       </div>
     );
   }
 
   return (
     <div className="fade-in">
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h1>🛍️ Ofertas Especiais</h1>
-        <p>Descubra os melhores produtos em oferta selecionados para você!</p>
+      {/* Hero Section */}
+      <div className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            <i className="fas fa-bolt"></i>
+            Achadex Jr
+          </h1>
+          <p className="hero-subtitle">
+            Tecnologia e inovação para o futuro dos afiliados
+          </p>
+          <div className="hero-stats">
+            <div className="stat-item">
+              <i className="fas fa-cube"></i>
+              <span>{products.filter(p => p.active).length} Produtos</span>
+            </div>
+            <div className="stat-item">
+              <i className="fas fa-tags"></i>
+              <span>{categories.length} Categorias</span>
+            </div>
+            <div className="stat-item">
+              <i className="fas fa-fire"></i>
+              <span>Ofertas Quentes</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filtros */}
-      <div style={{ 
-        background: 'white', 
-        padding: '1.5rem', 
-        borderRadius: '10px', 
-        marginBottom: '2rem',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-          <div>
-            <label className="form-label">Buscar produtos:</label>
+      <div className="filters-container">
+        <div className="filters-grid">
+          <div className="filter-group">
+            <label className="form-label">
+              <i className="fas fa-search"></i>
+              Buscar produtos:
+            </label>
             <input
               type="text"
               placeholder="Digite o nome ou descrição..."
@@ -49,8 +69,11 @@ const HomePage = ({ products, loading }) => {
             />
           </div>
           
-          <div>
-            <label className="form-label">Categoria:</label>
+          <div className="filter-group">
+            <label className="form-label">
+              <i className="fas fa-filter"></i>
+              Categoria:
+            </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -67,25 +90,29 @@ const HomePage = ({ products, loading }) => {
 
       {/* Resultados */}
       {filteredProducts.length === 0 ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '3rem',
-          background: 'white',
-          borderRadius: '10px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-        }}>
-          <h3>Nenhum produto encontrado</h3>
-          <p>Tente ajustar os filtros ou adicione novos produtos.</p>
+        <div className="no-products">
+          <div className="no-products-content">
+            <i className="fas fa-search"></i>
+            <h3>Nenhum produto encontrado</h3>
+            <p>Tente ajustar os filtros ou adicione novos produtos.</p>
+          </div>
         </div>
       ) : (
         <>
-          <div style={{ marginBottom: '1rem' }}>
-            <p><strong>{filteredProducts.length}</strong> produto(s) encontrado(s)</p>
+          <div className="results-header">
+            <div className="results-count">
+              <i className="fas fa-list"></i>
+              <span><strong>{filteredProducts.length}</strong> produto(s) encontrado(s)</span>
+            </div>
+            <div className="results-sort">
+              <i className="fas fa-sort"></i>
+              <span>Ordenar por relevância</span>
+            </div>
           </div>
           
           <div className="products-grid">
             {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id || product._id} product={product} />
             ))}
           </div>
         </>

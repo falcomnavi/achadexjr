@@ -10,9 +10,12 @@ import HomePage from './pages/HomePage';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductForm from './components/ProductForm';
+import ProductDetail from './pages/ProductDetail';
 
 // Configuração do axios
 axios.defaults.baseURL = 'http://localhost:5000';
+
+// TESTE: Achadex Jr - Site Tecnológico Atualizado
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -45,9 +48,30 @@ function App() {
   const addProduct = async (productData) => {
     try {
       const formData = new FormData();
+      
+      // Adicionar campos de texto
       Object.keys(productData).forEach(key => {
-        formData.append(key, productData[key]);
+        if (key !== 'image' && key !== 'video' && key !== 'additionalImages') {
+          formData.append(key, productData[key]);
+        }
       });
+
+      // Adicionar imagem principal
+      if (productData.image) {
+        formData.append('image', productData.image);
+      }
+
+      // Adicionar vídeo
+      if (productData.video) {
+        formData.append('video', productData.video);
+      }
+
+      // Adicionar imagens adicionais
+      if (productData.additionalImages && productData.additionalImages.length > 0) {
+        productData.additionalImages.forEach(image => {
+          formData.append('additionalImages', image);
+        });
+      }
 
       const response = await axios.post('/api/products', formData, {
         headers: {
@@ -68,9 +92,30 @@ function App() {
   const updateProduct = async (id, productData) => {
     try {
       const formData = new FormData();
+      
+      // Adicionar campos de texto
       Object.keys(productData).forEach(key => {
-        formData.append(key, productData[key]);
+        if (key !== 'image' && key !== 'video' && key !== 'additionalImages') {
+          formData.append(key, productData[key]);
+        }
       });
+
+      // Adicionar imagem principal
+      if (productData.image) {
+        formData.append('image', productData.image);
+      }
+
+      // Adicionar vídeo
+      if (productData.video) {
+        formData.append('video', productData.video);
+      }
+
+      // Adicionar imagens adicionais
+      if (productData.additionalImages && productData.additionalImages.length > 0) {
+        productData.additionalImages.forEach(image => {
+          formData.append('additionalImages', image);
+        });
+      }
 
       const response = await axios.put(`/api/products/${id}`, formData, {
         headers: {
@@ -79,7 +124,7 @@ function App() {
       });
 
       if (response.data.success) {
-        setProducts(products.map(p => p.id === id ? response.data.product : p));
+        setProducts(products.map(p => p.id === id || p._id === id ? response.data.product : p));
         return true;
       }
     } catch (error) {
@@ -92,7 +137,7 @@ function App() {
     try {
       const response = await axios.delete(`/api/products/${id}`);
       if (response.data.success) {
-        setProducts(products.filter(p => p.id !== id));
+        setProducts(products.filter(p => p.id !== id && p._id !== id));
         return true;
       }
     } catch (error) {
@@ -105,7 +150,7 @@ function App() {
     try {
       const response = await axios.patch(`/api/products/${id}/toggle`);
       if (response.data.success) {
-        setProducts(products.map(p => p.id === id ? response.data.product : p));
+        setProducts(products.map(p => p.id === id || p._id === id ? response.data.product : p));
       }
     } catch (error) {
       console.error('Erro ao alternar status do produto:', error);
@@ -126,6 +171,12 @@ function App() {
                   products={products} 
                   loading={loading} 
                 />
+              } 
+            />
+            <Route 
+              path="/product/:id" 
+              element={
+                <ProductDetail />
               } 
             />
             <Route 

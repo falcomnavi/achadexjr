@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 
 const Header = ({ isAdmin, onLogout }) => {
   return (
-    <header className="header">
+    <header className="header-tech">
       <div className="header-content">
-        <Link to="/" className="logo">
-          🛍️ Ofertas Afiliados
+        <Link to="/" className="logo-tech">
+          <div className="logo-icon">⚡</div>
+          <span className="logo-text">Achadex Jr</span>
         </Link>
         
         <nav>
@@ -22,17 +23,7 @@ const Header = ({ isAdmin, onLogout }) => {
                 <li>
                   <button 
                     onClick={onLogout}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'white',
-                      cursor: 'pointer',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '5px',
-                      transition: 'background-color 0.3s'
-                    }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    className="logout-btn"
                   >
                     Sair
                   </button>
@@ -45,6 +36,25 @@ const Header = ({ isAdmin, onLogout }) => {
             )}
           </ul>
         </nav>
+
+        {/* Redes Sociais */}
+        <div className="social-links">
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <i className="fab fa-facebook"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <i className="fab fa-instagram"></i>
+          </a>
+          <a href="https://telegram.org" target="_blank" rel="noopener noreferrer" className="social-link">
+            <i className="fab fa-telegram"></i>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <i className="fab fa-twitter"></i>
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <i className="fab fa-youtube"></i>
+          </a>
+        </div>
       </div>
     </header>
   );
